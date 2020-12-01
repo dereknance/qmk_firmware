@@ -5,3 +5,4 @@ COMMAND_ENABLE = no
 WEBUSB_ENABLE = yes
 ORYX_ENABLE = yes
 SRC = matrix.c
+RGB_MATRIX_CUSTOM_USER = yes
