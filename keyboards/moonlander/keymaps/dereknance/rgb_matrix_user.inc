@@ -3,17 +3,33 @@ RGB_MATRIX_EFFECT(my_effect)
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
 static int christmas_colors[][3] = {
-    {RGB_RED},
-    {RGB_GREEN},
-    {0x00, 0x00, 0x00}
+    {0, 255}, // red
+    {85, 255}, // green
+    {0, 0} // white
 };
 
 static void really_dumb_effect(int i, effect_params_t* params) {
     if (!HAS_ANY_FLAGS(g_led_config.flags[i], params->flags)) return;
 
-    int color_idx = rand() % 3;
-    int *color = christmas_colors[color_idx];
-    rgb_matrix_set_color(i, color[0], color[1], color[2]);
+    // if init or random number is even,
+    //   pick a random color red, green, or white
+    // else
+    //   extinguish the light (value/brightness == 0)
+
+    HSV hsv = {0, 0, 0};
+    if (params->init || (rand() % 6 != 0)) {
+        int hsv_idx = rand() % 3;
+        hsv.h = christmas_colors[hsv_idx][0];
+        hsv.s = christmas_colors[hsv_idx][1];
+        hsv.v = rgb_matrix_config.hsv.v;
+    } else {
+        hsv.h = rgb_matrix_config.hsv.h;
+        hsv.s = rgb_matrix_config.hsv.s;
+        hsv.v = 0;
+    }
+
+    RGB rgb = hsv_to_rgb(hsv);
+    rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
 }
 
 bool my_effect(effect_params_t* params) {
